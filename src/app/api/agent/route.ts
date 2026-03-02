@@ -61,10 +61,8 @@ VOICE & TONE:
             model: groq('llama-3.3-70b-versatile'),
             system: systemPrompt,
             messages: [{ role: 'user', content: message }],
-            // @ts-expect-error - AI SDK tool types are incompatible with strict mode
             tools: {
-                // @ts-expect-error - SDK type mismatch
-                searchPatients: tool({
+                searchPatients: (tool as any)({
                     description: 'Search for patients by name',
                     parameters: z.object({
                         name: z.string().describe('Patient name to search for'),
@@ -79,7 +77,7 @@ VOICE & TONE:
                     },
                 }),
 
-                createPatient: tool({
+                createPatient: (tool as any)({
                     description: 'Create a new patient',
                     parameters: z.object({
                         givenName: z.string().describe('Patient first name'),
@@ -105,7 +103,7 @@ VOICE & TONE:
                     },
                 }),
 
-                createBloodPressure: tool({
+                createBloodPressure: (tool as any)({
                     description: 'Create a blood pressure observation for a patient',
                     parameters: z.object({
                         patientId: z.string().optional().describe('Patient ID (optional if in context)'),
@@ -135,7 +133,7 @@ VOICE & TONE:
                     },
                 }),
 
-                createHeartRate: tool({
+                createHeartRate: (tool as any)({
                     description: 'Create a heart rate observation for a patient',
                     parameters: z.object({
                         patientId: z.string().optional().describe('Patient ID'),
@@ -157,7 +155,7 @@ VOICE & TONE:
                     },
                 }),
 
-                createObservation: tool({
+                createObservation: (tool as any)({
                     description: 'Create a generic vital sign or observation (weight, pulse ox, etc.)',
                     parameters: z.object({
                         patientId: z.string().optional().describe('Patient ID'),
@@ -207,7 +205,7 @@ VOICE & TONE:
                     },
                 }),
 
-                getPatientVitals: tool({
+                getPatientVitals: (tool as any)({
                     description: 'Get vital signs for a patient',
                     parameters: z.object({
                         patientId: z.string().optional().describe('Patient ID'),
@@ -226,7 +224,7 @@ VOICE & TONE:
                     },
                 }),
 
-                getPatientEncounters: tool({
+                getPatientEncounters: (tool as any)({
                     description: 'Get encounters (visits) for a patient',
                     parameters: z.object({
                         patientId: z.string().optional().describe('Patient ID'),
@@ -245,7 +243,7 @@ VOICE & TONE:
                     },
                 }),
 
-                getPatientProcedures: tool({
+                getPatientProcedures: (tool as any)({
                     description: 'Get procedures performed on a patient',
                     parameters: z.object({
                         patientId: z.string().optional().describe('Patient ID'),
@@ -262,7 +260,7 @@ VOICE & TONE:
                     },
                 }),
 
-                getPatientConditions: tool({
+                getPatientConditions: (tool as any)({
                     description: 'Get medical conditions for a patient',
                     parameters: z.object({
                         patientId: z.string().optional().describe('Patient ID'),
@@ -279,7 +277,7 @@ VOICE & TONE:
                     },
                 }),
 
-                createCondition: tool({
+                createCondition: (tool as any)({
                     description: 'Record a new diagnosis or clinical condition',
                     parameters: z.object({
                         patientId: z.string().optional(),
@@ -311,7 +309,7 @@ VOICE & TONE:
                     },
                 }),
             },
-        } as any);
+        });
 
         return NextResponse.json({
             response: result.text,
