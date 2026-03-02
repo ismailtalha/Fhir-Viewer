@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Server, Moon, Sun } from 'lucide-react';
+import { LogOut, Activity, Moon, Sun } from 'lucide-react';
 import PatientList from '@/components/PatientList';
 import PatientDashboard from '@/components/PatientDashboard';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -30,7 +30,7 @@ export default function ViewerPage() {
                 <div className="max-w-[1920px] mx-auto px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                            <Server className="w-5 h-5 text-white" />
+                            <Activity className="w-5 h-5 text-white" />
                         </div>
                         <div>
                             <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">FHIR AI Agent</h1>
@@ -90,7 +90,7 @@ export default function ViewerPage() {
                             className="w-full flex flex-col items-center gap-2 p-3 text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 rounded-2xl transition-all"
                         >
                             <div className="w-12 h-12 rounded-xl bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
-                                <Server className="w-6 h-6" />
+                                <Activity className="w-6 h-6" />
                             </div>
                             <span className="text-[10px] font-bold uppercase tracking-tighter">Search</span>
                         </button>
@@ -105,7 +105,7 @@ export default function ViewerPage() {
                         <div className="h-full flex items-center justify-center">
                             <div className="text-center">
                                 <div className="w-20 h-20 rounded-3xl bg-slate-800/50 flex items-center justify-center mx-auto mb-6 border border-slate-700/50 shadow-2xl relative">
-                                    <Server className="w-10 h-10 text-indigo-400" />
+                                    <Activity className="w-10 h-10 text-indigo-400" />
                                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 rounded-full animate-pulse" />
                                 </div>
                                 <h2 className="text-2xl font-bold text-white mb-3">Welcome to Clinical Hub</h2>

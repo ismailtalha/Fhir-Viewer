@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Server, Key, User, Lock, Loader2, CheckCircle2 } from 'lucide-react';
+import { Server, Activity, Key, User, Lock, Loader2, CheckCircle2 } from 'lucide-react';
 
 type AuthType = 'none' | 'bearer' | 'basic';
 
@@ -57,7 +57,7 @@ export default function ConnectionForm() {
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 mb-4 shadow-lg shadow-blue-500/25">
-                        <Server className="w-8 h-8 text-white" />
+                        <Activity className="w-8 h-8 text-white" />
                     </div>
                     <h1 className="text-3xl font-bold text-white mb-2">FHIR AI Agent</h1>
                     <p className="text-slate-400">Connect to your FHIR server to get started</p>
@@ -100,8 +100,8 @@ export default function ConnectionForm() {
                                     type="button"
                                     onClick={() => setAuthType(type)}
                                     className={`py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${authType === type
-                                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                                            : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                        ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                                        : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'
                                         }`}
                                 >
                                     {type === 'none' ? 'None' : type === 'bearer' ? 'Bearer Token' : 'Basic Auth'}
