@@ -1,0 +1,47 @@
+Product Requirements Document (PRD) - Clinical Hub & FHIR AI Agent
+1. Executive Summary
+The Clinical Hub is a modern, high-performance web application designed for clinicians to interact with FHIR-based medical data. It combines traditional data visualization (Dashboards, Timelines) with advanced AI capabilities (Causal Analysis, Agentic Drafting) to streamline clinical workflows and improve decision-making.
+
+2. Platform Objectives
+Centralize Clinical Data: Provide a single pane of glass for Encounters, Observations, Vitals, Conditions, and Procedures.
+Enhance Data Entry: Use AI-driven agents to simplify the creation of FHIR resources.
+Maintain Data Integrity: Provide robust CRUD operations for patient demographics and clinical statuses.
+Optimize Performance: Use virtualization (via virtua) to handle large clinical datasets without UI lag.
+3. Key Feature Modules
+3.1 Patient Dashboard
+Overview: A high-level summary of a patient's current state.
+Metrics: Real-time display of critical vitals and condition severity.
+Timeline: A chronological visualization of the clinical journey (Vis-Timeline integration).
+3.2 Patient Demographics CRUD
+Compact Header: Immediate access to MRN, Name, Gender, Age, and Code Status.
+Management Modal: Full access to identifiable data, contacts, and care team.
+Persistence: Direct synchronization with FHIR Patient and Observation resources.
+3.3 AI Agent Integration
+Capabilities:
+Natural language querying of clinical records.
+Automated drafting of clinical notes/resources.
+Causal analysis of longitudinal data (e.g., identifying drivers for condition changes).
+Models Supported: Google Gemini (1.5 Pro/Flash), Groq-hosted models.
+3.4 Clinical Document Management
+Viewer: High-fidelity viewing of diagnostic reports and clinical documents.
+Creation: Specialized modals for adding new Encounters, Conditions, and Observations.
+4. Technical Architecture
+Frontend: Next.js 13+ (App Router), React 18.
+Styling: Tailwind CSS with "Glassmorphism" aesthetic and full Dark Mode support.
+State Management: Server-side fetching with client-side React hooks for real-time interactivity.
+Backend API: Next.js API Routes orchestrating FHIR Server communication.
+Invariants:
+Full TypeScript type safety for FHIR R4 resources.
+Virtualized lists for scalability.
+5. Deployment & Infrastructure
+Authentication: iron-session based session management.
+Security: HIPAA-compliant data handling (no local storage of PHI).
+Integration: Supports any standard FHIR R4 server endpoint (Epic, Cerner, HAPI, etc.).
+6. Roadmap
+V1.1: Enhanced AI Causal Analysis UI.
+V1.2: Direct PDF generation for clinical summaries.
+V2.0: Multi-patient population health views.
+7. Success Metrics
+Clinician Efficiency: Time reduction in demographic updates and data lookup.
+Accuracy: 100% fidelity in FHIR resource mapping.
+System Load: Zero UI jank on lists exceeding 1000+ observations.
