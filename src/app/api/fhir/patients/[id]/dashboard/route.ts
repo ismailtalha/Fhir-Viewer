@@ -3,6 +3,8 @@ import { FHIRClient } from '@/lib/fhir-client';
 import { getConnection } from '@/lib/session';
 import { PatientDashboard } from '@/types/fhir';
 
+export const runtime = 'edge';
+
 interface RouteParams {
     params: Promise<{ id: string }>;
 }

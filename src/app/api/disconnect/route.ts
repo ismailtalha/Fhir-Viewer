@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { clearSession } from '@/lib/session';
 
+export const runtime = 'edge';
+
 export async function POST(): Promise<NextResponse> {
     try {
         await clearSession();

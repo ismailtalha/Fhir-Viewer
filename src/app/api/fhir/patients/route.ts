@@ -3,6 +3,8 @@ import { FHIRClient } from '@/lib/fhir-client';
 import { getConnection } from '@/lib/session';
 import { SimplePatient } from '@/types/fhir';
 
+export const runtime = 'edge';
+
 export async function GET(request: NextRequest): Promise<NextResponse<{ patients: SimplePatient[], nextOffset?: string } | { error: string }>> {
     try {
         const connection = await getConnection();

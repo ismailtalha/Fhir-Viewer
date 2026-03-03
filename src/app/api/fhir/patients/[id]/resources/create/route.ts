@@ -3,6 +3,8 @@ import { getSession } from '@/lib/session';
 import { FHIRClient } from '@/lib/fhir-client';
 import { FHIRObservation, FHIRCondition, FHIRProcedure, FHIREncounter } from '@/types/fhir';
 
+export const runtime = 'edge';
+
 export async function POST(
     request: NextRequest,
     { params }: { params: { id: string } }
