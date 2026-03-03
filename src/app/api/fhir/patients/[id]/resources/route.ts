@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/session';
 import { createFHIRClient } from '@/lib/fhir-client';
 
+export const runtime = 'edge';
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }

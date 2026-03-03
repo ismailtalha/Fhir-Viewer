@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FHIRClient } from '@/lib/fhir-client';
 import { getConnection } from '@/lib/session';
 
+export const runtime = 'edge';
+
 interface RouteParams {
     params: Promise<{ id: string }>;
 }

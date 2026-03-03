@@ -3,6 +3,8 @@ import { FHIRClient } from '@/lib/fhir-client';
 import { saveConnection } from '@/lib/session';
 import { FHIRConnection, ConnectResponse } from '@/types/fhir';
 
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest): Promise<NextResponse<ConnectResponse>> {
     try {
         const body = await request.json();

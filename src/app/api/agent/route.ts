@@ -6,6 +6,8 @@ import { FHIRClient } from '@/lib/fhir-client';
 import { getConnection } from '@/lib/session';
 import { FHIRCondition, FHIRProcedure } from '@/types/fhir';
 
+export const runtime = 'edge';
+
 interface AgentRequest {
     message: string;
     patientId?: string;
