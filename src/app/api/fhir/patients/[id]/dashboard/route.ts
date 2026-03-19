@@ -4,6 +4,7 @@ import { getConnection } from '@/lib/session';
 import { PatientDashboard } from '@/types/fhir';
 
 export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 interface RouteParams {
     params: Promise<{ id: string }>;

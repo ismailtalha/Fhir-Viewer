@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, User, Loader2, RefreshCw, ChevronDown } from 'lucide-react';
+import { Search, User, Loader2, RefreshCw, ChevronDown, UserPlus } from 'lucide-react';
 import { SimplePatient } from '@/types/fhir';
+import AddPatientModal from './AddPatientModal';
 
 interface PatientListProps {
     selectedPatientId: string | null;
@@ -16,6 +17,7 @@ export default function PatientList({ selectedPatientId, onSelectPatient }: Pati
     const [searchQuery, setSearchQuery] = useState('');
     const [nextOffset, setNextOffset] = useState<string | undefined>(undefined);
     const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
 
     const fetchPatients = useCallback(async (name?: string, offset?: string, append = false) => {
         if (!append) setLoading(true);
@@ -95,13 +97,22 @@ export default function PatientList({ selectedPatientId, onSelectPatient }: Pati
             <div className="p-4 border-b border-slate-200 dark:border-slate-700/50">
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Patients</h2>
-                    <button
-                        onClick={() => fetchPatients(searchQuery || undefined)}
-                        className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
-                        title="Refresh"
-                    >
-                        <RefreshCw className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-1 border border-slate-200 dark:border-slate-700/50 p-1 rounded-xl">
+                        <button
+                            onClick={() => setIsAddPatientModalOpen(true)}
+                            className="p-2 text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors"
+                            title="Add Patient"
+                        >
+                            <UserPlus className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => fetchPatients(searchQuery || undefined)}
+                            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
+                            title="Refresh"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Search */}
@@ -183,11 +194,20 @@ export default function PatientList({ selectedPatientId, onSelectPatient }: Pati
             </div>
 
             {/* Footer */}
-            <div className="p-3 border-t border-slate-700/50 text-center">
+            <div className="p-3 border-t border-slate-200 dark:border-slate-700/50 text-center">
                 <p className="text-xs text-slate-500">
                     {patients.length} patient{patients.length !== 1 ? 's' : ''} loaded
                 </p>
             </div>
+
+            <AddPatientModal
+                isOpen={isAddPatientModalOpen}
+                onClose={() => setIsAddPatientModalOpen(false)}
+                onSuccess={(newPatient) => {
+                    fetchPatients(); // Refetch patients to load the latest
+                    onSelectPatient(newPatient); // Auto-select the newly added patient
+                }}
+            />
         </div>
     );
 }

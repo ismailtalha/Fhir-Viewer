@@ -1,13 +1,35 @@
 'use client';
 
-import { FileText, Download, ExternalLink, Calendar, File, Shield } from 'lucide-react';
+import { FileText, Download, ExternalLink, Calendar, File, Shield, Loader2 } from 'lucide-react';
 import { SimpleDocument } from '@/types/fhir';
 import { VList } from 'virtua';
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 
 interface DocumentsListProps {
     documents: SimpleDocument[];
+    onLoadMore?: () => void;
+    hasMore?: boolean;
+    loadingMore?: boolean;
 }
+
+const ScrollTrigger = memo(({ onLoadMore, loading }: { onLoadMore: () => void, loading?: boolean }) => {
+    const [ref, setRef] = useState<HTMLDivElement | null>(null);
+    useEffect(() => {
+        if (loading || !ref) return;
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) onLoadMore();
+        }, { threshold: 0.1 });
+        observer.observe(ref);
+        return () => observer.disconnect();
+    }, [onLoadMore, loading, ref]);
+
+    return (
+        <div ref={setRef} className="py-4 flex justify-center items-center pb-8 text-slate-400">
+            {loading ? <Loader2 className="w-6 h-6 animate-spin text-indigo-500" /> : <div className="h-6" />}
+        </div>
+    );
+});
+ScrollTrigger.displayName = 'ScrollTrigger';
 
 const formatSize = (bytes?: number) => {
     if (!bytes) return 'Unknown size';
@@ -80,7 +102,7 @@ const DocumentItem = memo(({ doc, onDownload }: { doc: SimpleDocument; onDownloa
 
 DocumentItem.displayName = 'DocumentItem';
 
-export default function DocumentsList({ documents }: DocumentsListProps) {
+export default function DocumentsList({ documents, onLoadMore, hasMore, loadingMore }: DocumentsListProps) {
     if (documents.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
@@ -104,9 +126,12 @@ export default function DocumentsList({ documents }: DocumentsListProps) {
     return (
         <div className="max-h-[500px] overflow-hidden pr-2 custom-scrollbar">
             <VList style={{ height: '500px' }}>
-                {documents.map((doc) => (
-                    <DocumentItem key={doc.id} doc={doc} onDownload={handleDownload} />
-                ))}
+                {[
+                    ...documents.map((doc) => (
+                        <DocumentItem key={doc.id} doc={doc} onDownload={handleDownload} />
+                    )),
+                    ...(hasMore && onLoadMore ? [<ScrollTrigger key="infinite-loader" onLoadMore={onLoadMore} loading={loadingMore} />] : [])
+                ]}
             </VList>
         </div>
     );

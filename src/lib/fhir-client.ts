@@ -52,6 +52,7 @@ export class FHIRClient {
     public async request<T>(path: string, options?: RequestInit): Promise<T> {
         const url = `${this.baseUrl}${path}`;
         const response = await fetch(url, {
+            cache: 'no-store',
             ...options,
             headers: { ...this.headers, ...options?.headers },
         });
@@ -256,9 +257,43 @@ export class FHIRClient {
         });
     }
 
+    buildLocationPath(locationId: string, allLocations: FHIRLocation[]): string {
+        const locMap = new Map(allLocations.map(l => [l.id, l]));
+        let current = locMap.get(locationId);
+        if (!current) return '';
+        
+        const path = [];
+        let safeguard = 10;
+        while (current && safeguard > 0) {
+            const locName = current.name || 'Unnamed';
+            const typeStr = current.physicalType?.coding?.[0]?.display || '';
+            
+            // Only append type if it's not already in the name to avoid "Bed A (Bed)"
+            const displayType = typeStr && !locName.toLowerCase().includes(typeStr.toLowerCase()) ? ` (${typeStr})` : '';
+            path.unshift(`${locName}${displayType}`.trim());
+            
+            if (current.partOf && current.partOf.reference) {
+                const parentId = current.partOf.reference.replace(/^Location\//, '');
+                current = locMap.get(parentId);
+            } else {
+                current = undefined;
+            }
+            safeguard--;
+        }
+        return path.join(' • ');
+    }
+
     async getLocations(): Promise<FHIRLocation[]> {
-        const bundle = await this.request<FHIRBundle<FHIRLocation>>('/Location?_count=100');
-        return (bundle.entry || []).map(entry => entry.resource);
+        const bundle = await this.request<FHIRBundle<FHIRLocation>>('/Location?_count=500');
+        const locs = (bundle.entry || []).map(entry => entry.resource);
+        
+        locs.forEach(loc => {
+            if (loc.id) {
+                loc.name = this.buildLocationPath(loc.id, locs);
+            }
+        });
+        
+        return locs.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     }
 
     async getCurrentLocation(patientId: string): Promise<{ id: string, name: string } | undefined> {
@@ -269,10 +304,22 @@ export class FHIRClient {
 
         const activeLoc = latest.location?.find(l => l.status === 'active');
         if (activeLoc) {
-            return {
-                id: activeLoc.location.reference.replace(/^Location\//, ''),
-                name: activeLoc.location.display || 'Unknown Location'
-            };
+            const locId = activeLoc.location.reference.replace(/^Location\//, '');
+            try {
+                // Fetch all locations to resolve full path
+                const bundle = await this.request<FHIRBundle<FHIRLocation>>('/Location?_count=500');
+                const locs = (bundle.entry || []).map(entry => entry.resource);
+                const fullName = this.buildLocationPath(locId, locs);
+                return {
+                    id: locId,
+                    name: fullName || activeLoc.location.display || 'Unknown Location'
+                };
+            } catch (e) {
+                return {
+                    id: locId,
+                    name: activeLoc.location.display || 'Unknown Location'
+                };
+            }
         }
         return undefined;
     }
@@ -659,9 +706,21 @@ export class FHIRClient {
         givenName: string,
         familyName: string,
         gender: 'male' | 'female' | 'other' | 'unknown',
-        birthDate: string
+        birthDate: string,
+        options?: {
+            phone?: string;
+            email?: string;
+            address?: {
+                line?: string[];
+                city?: string;
+                state?: string;
+                postalCode?: string;
+                country?: string;
+            };
+            mrn?: string;
+        }
     ): Partial<FHIRPatient> {
-        return {
+        const patient: Partial<FHIRPatient> = {
             active: true,
             name: [{
                 use: 'official',
@@ -671,6 +730,43 @@ export class FHIRClient {
             gender,
             birthDate,
         };
+
+        if (options?.mrn) {
+            patient.identifier = [{
+                use: 'official',
+                type: {
+                    coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: 'MR', display: 'Medical record number' }],
+                    text: 'MRN'
+                },
+                system: 'urn:oid:2.16.840.1.113883.4.1', // OID for MRN or generic
+                value: options.mrn
+            }];
+        }
+
+        const telecom: FHIRContactPoint[] = [];
+        if (options?.phone) {
+            telecom.push({ system: 'phone', value: options.phone, use: 'mobile' });
+        }
+        if (options?.email) {
+            telecom.push({ system: 'email', value: options.email, use: 'home' });
+        }
+        if (telecom.length > 0) {
+            patient.telecom = telecom;
+        }
+
+        if (options?.address) {
+            patient.address = [{
+                use: 'home',
+                type: 'physical',
+                line: options.address.line,
+                city: options.address.city,
+                state: options.address.state,
+                postalCode: options.address.postalCode,
+                country: options.address.country,
+            }];
+        }
+
+        return patient;
     }
 
     // Manipulation
