@@ -11,7 +11,7 @@ interface FullscreenCardProps {
     /** Optional subtitle shown only in fullscreen mode */
     subtitle?: string;
     /** Content shown inside the card */
-    children: React.ReactNode;
+    children: React.ReactNode | ((props: { isFullscreen: boolean }) => React.ReactNode);
     /** Extra controls placed next to the fullscreen toggle (e.g. Load More) */
     footer?: React.ReactNode;
     /** Extra CSS classes for the normal-state wrapper */
@@ -77,7 +77,7 @@ export default function FullscreenCard({
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-                {children}
+                {typeof children === 'function' ? children({ isFullscreen: false }) : children}
             </div>
 
             {/* Footer (e.g. Load More) */}
@@ -116,7 +116,7 @@ export default function FullscreenCard({
             {/* Fullscreen content */}
             <div className="flex-1 overflow-hidden flex flex-col px-8 py-6 min-h-0">
                 <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                    {children}
+                    {typeof children === 'function' ? children({ isFullscreen: true }) : children}
                 </div>
                 {footer && (
                     <div className="shrink-0 mt-4 border-t border-slate-700/50 pt-4">

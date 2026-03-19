@@ -123,12 +123,17 @@ export default function PatientDemographics({ patient, onUpdate }: PatientDemogr
                                         {patient.codeStatus || 'Full Code'}
                                     </span>
                                     {patient.deceased && (
-                                        <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white text-[9px] font-bold uppercase tracking-wider">Fatal</span>
+                                        <span className="px-2 py-1 rounded-md bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm">Fatal</span>
                                     )}
-                                    {patient.location && (
-                                        <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
-                                            <Bed className="w-2.5 h-2.5" />
-                                            {patient.location}
+                                    {patient.location ? (
+                                        <span className="px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 text-xs font-bold tracking-tight flex items-center gap-1.5 shadow-sm ml-2">
+                                            <MapPin className="w-3.5 h-3.5" />
+                                            Location: {patient.location}
+                                        </span>
+                                    ) : (
+                                        <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-xs font-bold tracking-tight flex items-center gap-1.5 shadow-sm ml-2">
+                                            <MapPin className="w-3.5 h-3.5" />
+                                            Unassigned Location
                                         </span>
                                     )}
                                 </div>

@@ -12,7 +12,6 @@ import PatientTimeline from './PatientTimeline';
 import TimelineGraph from './TimelineGraph';
 import AgentChat from './AgentChat';
 import PatientStats from './PatientStats';
-import ClinicalJourney from './ClinicalJourney';
 import DocumentsList from './DocumentsList';
 import AddResourceModal from './AddResourceModal';
 import FullscreenCard from './FullscreenCard';
@@ -32,7 +31,12 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
     const fetchDashboard = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/fhir/patients/${patient.id}/dashboard`);
+            const response = await fetch(`/api/fhir/patients/${patient.id}/dashboard?t=${Date.now()}`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
             const data = await response.json();
             if (!data.error) {
                 setDashboard(data);
@@ -304,10 +308,12 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                     </button>
                     <button
                         onClick={fetchDashboard}
-                        className="p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-xl transition-all"
-                        title="Refresh dashboard"
+                        disabled={loading}
+                        className="flex items-center gap-1.5 px-4 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl transition-all shadow-sm disabled:opacity-50"
+                        title="Force refresh dashboard data"
                     >
-                        <RefreshCw className="w-4 h-4" />
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-indigo-500' : ''}`} />
+                        Refresh
                     </button>
                 </div>
             </div>
@@ -334,8 +340,6 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                     <div className="h-full overflow-hidden overflow-y-auto pr-2 custom-scrollbar">
                         {activeTab === 'overview' ? (
                             <div className="flex flex-col gap-4">
-                                {/* Clinical Journey Pathway */}
-                                <ClinicalJourney events={timelineEvents} />
 
                                 {/* Vitals */}
                                 <FullscreenCard
@@ -354,19 +358,16 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                                             icon={<FileHeart className="w-5 h-5 text-red-500 dark:text-red-400" />}
                                             title="Conditions"
                                             subtitle="Active, resolved and inactive clinical conditions"
-                                            footer={
-                                                dashboard?.conditions.nextOffset ? (
-                                                    <button
-                                                        onClick={() => handleLoadMore('condition')}
-                                                        disabled={loadingMore.condition}
-                                                        className="w-full py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20 disabled:opacity-50"
-                                                    >
-                                                        {loadingMore.condition ? 'Loading...' : 'Load More'}
-                                                    </button>
-                                                ) : undefined
-                                            }
                                         >
-                                            <ConditionsList conditions={dashboard?.conditions.resources || []} />
+                                            {({ isFullscreen }) => (
+                                                <ConditionsList 
+                                                    conditions={dashboard?.conditions.resources || []} 
+                                                    isExpanded={isFullscreen} 
+                                                    onLoadMore={() => handleLoadMore('condition')}
+                                                    hasMore={!!dashboard?.conditions.nextOffset}
+                                                    loadingMore={loadingMore.condition}
+                                                />
+                                            )}
                                         </FullscreenCard>
                                     </div>
 
@@ -376,19 +377,16 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                                             icon={<Calendar className="w-5 h-5 text-indigo-500 dark:text-blue-400" />}
                                             title="Encounters"
                                             subtitle="All clinical visits and hospital encounters"
-                                            footer={
-                                                dashboard?.encounters.nextOffset ? (
-                                                    <button
-                                                        onClick={() => handleLoadMore('encounter')}
-                                                        disabled={loadingMore.encounter}
-                                                        className="w-full py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20 disabled:opacity-50"
-                                                    >
-                                                        {loadingMore.encounter ? 'Loading...' : 'Load More'}
-                                                    </button>
-                                                ) : undefined
-                                            }
                                         >
-                                            <EncountersList encounters={dashboard?.encounters.resources || []} />
+                                            {({ isFullscreen }) => (
+                                                <EncountersList 
+                                                    encounters={dashboard?.encounters.resources || []} 
+                                                    isExpanded={isFullscreen} 
+                                                    onLoadMore={() => handleLoadMore('encounter')}
+                                                    hasMore={!!dashboard?.encounters.nextOffset}
+                                                    loadingMore={loadingMore.encounter}
+                                                />
+                                            )}
                                         </FullscreenCard>
                                     </div>
 
@@ -398,19 +396,16 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                                             icon={<Activity className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
                                             title="Procedures"
                                             subtitle="Surgical procedures and clinical interventions"
-                                            footer={
-                                                dashboard?.procedures.nextOffset ? (
-                                                    <button
-                                                        onClick={() => handleLoadMore('procedure')}
-                                                        disabled={loadingMore.procedure}
-                                                        className="w-full py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20 disabled:opacity-50"
-                                                    >
-                                                        {loadingMore.procedure ? 'Loading...' : 'Load More'}
-                                                    </button>
-                                                ) : undefined
-                                            }
                                         >
-                                            <ProceduresList procedures={dashboard?.procedures.resources || []} />
+                                            {({ isFullscreen }) => (
+                                                <ProceduresList 
+                                                    procedures={dashboard?.procedures.resources || []} 
+                                                    isExpanded={isFullscreen} 
+                                                    onLoadMore={() => handleLoadMore('procedure')}
+                                                    hasMore={!!dashboard?.procedures.nextOffset}
+                                                    loadingMore={loadingMore.procedure}
+                                                />
+                                            )}
                                         </FullscreenCard>
                                     </div>
 
@@ -420,19 +415,16 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                                             icon={<Activity className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />}
                                             title="Observations"
                                             subtitle="Lab results, vitals, and other clinical measurements"
-                                            footer={
-                                                dashboard?.observations.nextOffset ? (
-                                                    <button
-                                                        onClick={() => handleLoadMore('observation')}
-                                                        disabled={loadingMore.observation}
-                                                        className="w-full py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20 disabled:opacity-50"
-                                                    >
-                                                        {loadingMore.observation ? 'Loading...' : 'Load More'}
-                                                    </button>
-                                                ) : undefined
-                                            }
                                         >
-                                            <ObservationsList observations={dashboard?.observations.resources || []} />
+                                            {({ isFullscreen }) => (
+                                                <ObservationsList 
+                                                    observations={dashboard?.observations.resources || []} 
+                                                    isExpanded={isFullscreen} 
+                                                    onLoadMore={() => handleLoadMore('observation')}
+                                                    hasMore={!!dashboard?.observations.nextOffset}
+                                                    loadingMore={loadingMore.observation}
+                                                />
+                                            )}
                                         </FullscreenCard>
                                     </div>
 
@@ -442,19 +434,13 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                                             icon={<FileText className="w-5 h-5 text-amber-500" />}
                                             title="Clinical Documents"
                                             subtitle="Attachments, imaging reports, and clinical summaries"
-                                            footer={
-                                                dashboard?.documents.nextOffset ? (
-                                                    <button
-                                                        onClick={() => handleLoadMore('document')}
-                                                        disabled={loadingMore.document}
-                                                        className="w-full py-2 text-sm text-indigo-500 hover:text-indigo-600 hover:bg-indigo-500/10 rounded-lg transition-colors border border-indigo-500/20 disabled:opacity-50"
-                                                    >
-                                                        {loadingMore.document ? 'Loading...' : 'Load More'}
-                                                    </button>
-                                                ) : undefined
-                                            }
                                         >
-                                            <DocumentsList documents={dashboard?.documents.resources || []} />
+                                            <DocumentsList 
+                                                documents={dashboard?.documents.resources || []} 
+                                                onLoadMore={() => handleLoadMore('document')}
+                                                hasMore={!!dashboard?.documents.nextOffset}
+                                                loadingMore={loadingMore.document}
+                                            />
                                         </FullscreenCard>
                                     </div>
                                 </div>
@@ -492,7 +478,12 @@ export default function PatientDashboard({ patient }: PatientDashboardProps) {
                                         </button>
                                     </div>
                                     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                                        <DocumentsList documents={dashboard?.documents.resources || []} />
+                                        <DocumentsList 
+                                            documents={dashboard?.documents.resources || []} 
+                                            onLoadMore={() => handleLoadMore('document')}
+                                            hasMore={!!dashboard?.documents.nextOffset}
+                                            loadingMore={loadingMore.document}
+                                        />
                                     </div>
                                 </div>
                             </div>
